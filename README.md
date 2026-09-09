@@ -15,7 +15,7 @@ University libraries currently maintain borrowing records in bulky manual regist
 | Joshiny Maria | 2462091 | ADSE | 5BTCSAIML C |
 | Krishna S Nair| 2462102 | ADSE | 5BTCSAIML C |
 
-> Before submitting, replace the `—` cells with the actual names and roll numbers of all team members.
+
 
 ## 🧰 Tech Stack
 
