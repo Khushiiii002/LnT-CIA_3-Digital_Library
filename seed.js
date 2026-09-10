@@ -10,10 +10,12 @@ const Hold = require("./models/Hold");
 const FinePayment = require("./models/FinePayment");
 const Notification = require("./models/Notification");
 
-const seedData = async () => {
+const seedData = async (exitOnComplete = true) => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("Connected to MongoDB for seeding...");
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(process.env.MONGODB_URI);
+      console.log("Connected to MongoDB for seeding...");
+    }
 
     // Clear existing data
     await User.deleteMany({});
@@ -46,7 +48,7 @@ const seedData = async () => {
     console.log(`${plans.length} membership plans created`);
 
     // Create admin
-    const admin = await User.create({
+    await User.create({
       name: "Admin User",
       email: "admin@library.com",
       passwordHash: "admin123",
@@ -238,11 +240,15 @@ const seedData = async () => {
     console.log("Member 2: jane@student.com / password123");
     console.log("Member 3: robert@faculty.com / password123");
 
-    process.exit(0);
+    if (exitOnComplete) process.exit(0);
   } catch (error) {
     console.error("Seeding error:", error);
-    process.exit(1);
+    if (exitOnComplete) process.exit(1);
   }
 };
 
-seedData();
+module.exports = seedData;
+
+if (require.main === module) {
+  seedData(true);
+}

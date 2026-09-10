@@ -20,7 +20,6 @@ router.post(
 router.put(
   "/:id/return",
   protect,
-  authorize("librarian", "admin"),
   transactionController.returnBook
 );
 

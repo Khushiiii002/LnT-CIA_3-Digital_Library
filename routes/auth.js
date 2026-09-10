@@ -29,8 +29,8 @@ router.post(
 
 router.get("/profile", protect, authController.getProfile);
 
-// Admin routes
-router.get("/users", protect, authorize("admin"), authController.getAllUsers);
+// Librarian/Admin routes
+router.get("/users", protect, authorize("librarian", "admin"), authController.getAllUsers);
 router.put("/users/:id/deactivate", protect, authorize("admin"), authController.deactivateUser);
 
 // Librarian/Admin: Create librarian account

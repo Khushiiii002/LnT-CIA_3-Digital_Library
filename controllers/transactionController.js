@@ -128,6 +128,14 @@ exports.returnBook = async (req, res, next) => {
       });
     }
 
+    if (req.user.role === "member" && transaction.memberId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to return this transaction",
+        errorCode: "FORBIDDEN",
+      });
+    }
+
     if (transaction.status === "returned") {
       return res.status(409).json({
         success: false,

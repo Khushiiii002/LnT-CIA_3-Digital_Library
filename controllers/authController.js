@@ -124,7 +124,7 @@ exports.getProfile = async (req, res, next) => {
 // Admin: Get all users
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const { role, page = 1, limit = 10 } = req.query;
+    const { role, page = 1, limit = 100 } = req.query;
     const query = {};
     if (role) query.role = role;
 

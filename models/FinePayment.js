@@ -5,7 +5,7 @@ const finePaymentSchema = new mongoose.Schema(
     transactionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Transaction",
-      required: [true, "Transaction ID is required"],
+      default: null,
     },
     memberId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,14 +17,18 @@ const finePaymentSchema = new mongoose.Schema(
       required: [true, "Amount is required"],
       min: 0,
     },
+    reason: {
+      type: String,
+      default: "Library Fee Penalty",
+    },
     paidAt: {
       type: Date,
-      default: Date.now,
+      default: null,
     },
     status: {
       type: String,
       enum: ["pending", "paid", "waived"],
-      default: "paid",
+      default: "pending",
     },
     collectedBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -5,11 +5,22 @@ const validate = require("../middleware/validate");
 const { protect, authorize } = require("../middleware/auth");
 const fineController = require("../controllers/fineController");
 
+// Issue a fine directly to a member
+router.post(
+  "/issue",
+  protect,
+  authorize("librarian", "admin"),
+  [
+    body("memberId").notEmpty().withMessage("Member ID is required"),
+    body("amount").isNumeric().withMessage("Valid amount is required"),
+  ],
+  validate,
+  fineController.issueFine
+);
+
 router.post(
   "/pay",
   protect,
-  [body("transactionId").notEmpty().withMessage("Transaction ID is required")],
-  validate,
   fineController.payFine
 );
 
@@ -17,8 +28,6 @@ router.post(
   "/waive",
   protect,
   authorize("librarian", "admin"),
-  [body("transactionId").notEmpty().withMessage("Transaction ID is required")],
-  validate,
   fineController.waiveFine
 );
 

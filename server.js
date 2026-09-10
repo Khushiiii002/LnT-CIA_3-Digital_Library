@@ -8,8 +8,23 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
-// Connect to MongoDB
-connectDB();
+const User = require("./models/User");
+const seedData = require("./seed");
+
+// Connect to MongoDB and auto-seed if database is empty
+connectDB().then(async (connected) => {
+  if (connected) {
+    try {
+      const userCount = await User.countDocuments();
+      if (userCount === 0) {
+        console.log("Database is empty. Automatically seeding initial users and catalog...");
+        await seedData(false);
+      }
+    } catch (err) {
+      console.error("Auto-seed check error:", err.message);
+    }
+  }
+});
 
 // Middleware
 app.use(cors());
@@ -33,7 +48,22 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// 404 handler
+const path = require("path");
+
+// Serve static assets built from frontend
+app.use(express.static(path.join(__dirname, "public")));
+
+// SPA Fallback for client routes
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
+  const indexPath = path.join(__dirname, "public", "index.html");
+  if (require("fs").existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  next();
+});
+
+// 404 handler for API routes
 app.use((req, res) => {
   res.status(404).json({
     success: false,
