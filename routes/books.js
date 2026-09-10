@@ -1,54 +1,47 @@
 const express = require("express");
-const router = express.Router();
 const { body, query } = require("express-validator");
 const validate = require("../middleware/validate");
 const { protect, authorize } = require("../middleware/auth");
-const bookController = require("../controllers/bookController");
+const { 
+  searchBooks, 
+  getAllBooks, 
+  getBook, 
+  addBook, 
+  updateBook, 
+  deleteBook 
+} = require("../controllers/bookController");
 
+const router = express.Router();
+const adminAuth = [protect, authorize("librarian", "admin")];
+
+// Search Route
 router.get(
   "/search",
   [
-    query("title").optional().isString(),
-    query("author").optional().isString(),
-    query("category").optional().isString(),
+    query(["title", "author", "category"]).optional().isString(),
     query("available").optional().isBoolean(),
   ],
   validate,
-  bookController.searchBooks
+  searchBooks
 );
 
-router.get("/", bookController.getAllBooks);
-router.get("/:id", bookController.getBook);
+// Collection Routes
+router.route("/")
+  .get(getAllBooks)
+  .post(
+    adminAuth,
+    [
+      body(["title", "author", "isbn", "category"]).notEmpty().withMessage("Required field"),
+      body("totalCopies").isInt({ min: 1 }).withMessage("Total copies must be at least 1"),
+    ],
+    validate,
+    addBook
+  );
 
-router.post(
-  "/",
-  protect,
-  authorize("librarian", "admin"),
-  [
-    body("title").notEmpty().withMessage("Title is required"),
-    body("author").notEmpty().withMessage("Author is required"),
-    body("isbn").notEmpty().withMessage("ISBN is required"),
-    body("category").notEmpty().withMessage("Category is required"),
-    body("totalCopies")
-      .isInt({ min: 1 })
-      .withMessage("Total copies must be at least 1"),
-  ],
-  validate,
-  bookController.addBook
-);
-
-router.put(
-  "/:id",
-  protect,
-  authorize("librarian", "admin"),
-  bookController.updateBook
-);
-
-router.delete(
-  "/:id",
-  protect,
-  authorize("librarian", "admin"),
-  bookController.deleteBook
-);
+// Resource Routes
+router.route("/:id")
+  .get(getBook)
+  .put(adminAuth, updateBook)
+  .delete(adminAuth, deleteBook);
 
 module.exports = router;
